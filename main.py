@@ -40,7 +40,7 @@ def format_value(price, change, pct_change, is_yield=False):
     if price is None:
         return "데이터 대기 중"
 
-    # 상승: 🔺 (빨간/초록 삼각), 하락: 🔻 (파란색 역삼각형)
+    # 상승: 🔺 (빨간/초록 삼각), 하락: ▼ (파란색 역삼각형)
     icon = "🔺" if change >= 0 else "🔻"
     sign = "+" if change >= 0 else ""
 
