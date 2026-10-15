@@ -1,0 +1,32 @@
+name: Telegram Economic Report
+
+on:
+  schedule:
+    # 매일 한국 시간 기준 저녁 7시 (KST 19:00) -> UTC 기준 오전 10시 (10:00 UTC) 에 실행
+    # GitHub Actions의 cron은 UTC 기준이므로 KST 19시는 UTC 10시입니다.
+    - cron: '0 10 * * *'
+  workflow_dispatch: # 수동으로도 테스트 실행 가능하도록 설정
+
+jobs:
+  send-report:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          python -m __lib__ --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run script
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          python main.py
