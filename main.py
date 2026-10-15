@@ -36,13 +36,17 @@ def get_ticker_data(ticker_symbol):
 
 
 def format_value(price, change, pct_change, is_yield=False):
-    """상승/하락 아이콘 및 문자열 포맷팅"""
+    """상승/하락 아이콘(📈 / 📉) 및 문자열 포맷팅"""
     if price is None:
         return "데이터 대기 중"
 
-    # 상승: 🔺 (빨간/초록 삼각), 하락: ▼ (파란색 역삼각형)
-    icon = "🔺" if change >= 0 else " ▼ "
-    sign = "+" if change >= 0 else ""
+    # 상승: 📈, 하락: 📉
+    if change >= 0:
+        icon = "📈"
+        sign = "+"
+    else:
+        icon = "📉"
+        sign = ""  # 음수일 경우 기본 '-' 부호가 붙으므로 빈 문자열 처리
 
     if is_yield:  # 국채 수익률 (%)
         return f"{price:.2f}% ({icon} {sign}{change:.2f}, {sign}{pct_change:.2f}%)"
