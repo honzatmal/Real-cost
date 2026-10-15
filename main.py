@@ -36,7 +36,7 @@ def get_ticker_data(ticker_symbol):
 
 
 def format_value(price, change, pct_change, is_yield=False):
-    """상승/하락 아이콘(📈 / 📉) 및 문자열 포맷팅"""
+    """상승/하락 아이콘(📈 / 📉) 및 문자열 포맷팅 (현재가 소수점 2자리 고정)"""
     if price is None:
         return "데이터 대기 중"
 
@@ -50,7 +50,7 @@ def format_value(price, change, pct_change, is_yield=False):
 
     if is_yield:  # 국채 수익률 (%)
         return f"{price:.2f}% ({icon} {sign}{change:.2f}, {sign}{pct_change:.2f}%)"
-    else:  # 일반 가격
+    else:  # 일반 가격 (소수점 2자리 포맷팅)
         return f"{price:,.2f} ({icon} {sign}{change:,.2f}, {sign}{pct_change:.2f}%)"
 
 
@@ -80,7 +80,7 @@ def generate_report():
         f"S&P500: {format_value(sp500_p, sp500_c, sp500_pct)}\n"
     )
 
-    # 미 국채 수익률
+    # 미 국채 수익률 (2년물 제외)
     us01y_p, us01y_c, us01y_pct = get_ticker_data("^IRX")
     us05y_p, us05y_c, us05y_pct = get_ticker_data("^FVX")
     us10y_p, us10y_c, us10y_pct = get_ticker_data("^TNX")
@@ -89,20 +89,21 @@ def generate_report():
     section_bonds = (
         f"\n🏛️ 미 국채 수익률 (%)\n"
         f"1년물: {format_value(us01y_p, us01y_c, us01y_pct, is_yield=True)}\n"
-        f"2년물: 데이터 대기 중\n"
         f"5년물: {format_value(us05y_p, us05y_c, us05y_pct, is_yield=True)}\n"
         f"10년물: {format_value(us10y_p, us10y_c, us10y_pct, is_yield=True)}\n"
         f"30년물: {format_value(us30y_p, us30y_c, us30y_pct, is_yield=True)}\n"
     )
 
-    # 암호화폐
+    # 암호화폐 (비트코인, 이더리움, 테더 추가)
     btc_p, btc_c, btc_pct = get_ticker_data("BTC-USD")
     eth_p, eth_c, eth_pct = get_ticker_data("ETH-USD")
+    usdt_p, usdt_c, usdt_pct = get_ticker_data("USDT-USD")
 
     section_crypto = (
         f"\n🌕 암호화폐\n"
         f"비트코인: {format_value(btc_p, btc_c, btc_pct)}\n"
         f"이더리움: {format_value(eth_p, eth_c, eth_pct)}\n"
+        f"테더: {format_value(usdt_p, usdt_c, usdt_pct)}\n"
     )
 
     # 에너지/금속
