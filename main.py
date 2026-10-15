@@ -36,7 +36,7 @@ def get_ticker_data(ticker_symbol):
 
 
 def format_value(price, change, pct_change, is_yield=False):
-    """상승/하락 아이콘(📈 / 📉) 및 문자열 포맷팅 (현재가 소수점 2자리 고정)"""
+    """상승/하락 아이콘 및 굵은 글씨(Bold) 포맷팅"""
     if price is None:
         return "데이터 대기 중"
 
@@ -48,10 +48,11 @@ def format_value(price, change, pct_change, is_yield=False):
         icon = "📉"
         sign = ""  # 음수일 경우 기본 '-' 부호가 붙으므로 빈 문자열 처리
 
+    # 마크다운 ** **를 이용해 현재가를 굵게 표시
     if is_yield:  # 국채 수익률 (%)
-        return f"{price:.2f}% ({icon} {sign}{change:.2f}, {sign}{pct_change:.2f}%)"
-    else:  # 일반 가격 (소수점 2자리 포맷팅)
-        return f"{price:,.2f} ({icon} {sign}{change:,.2f}, {sign}{pct_change:.2f}%)"
+        return f"**{price:.2f}%** ({icon} {sign}{change:.2f}, {sign}{pct_change:.2f}%)"
+    else:  # 일반 가격 (소수점 2자리 및 굵은 글씨)
+        return f"**{price:,.2f}** ({icon} {sign}{change:,.2f}, {sign}{pct_change:.2f}%)"
 
 
 # ---------------------------------------------------------
@@ -63,7 +64,7 @@ def generate_report():
     ny_now = utc_now.astimezone(pytz.timezone("America/New_York"))
 
     time_header = (
-        f"🔔 [{kst_now.strftime('%H')}시 경제 리포트]\n"
+        f"🔔 *[{kst_now.strftime('%H')}시 경제 리포트]*\n"
         f"🇰🇷 KST:{kst_now.strftime('%H:%M')} | 🇺🇸 NY:{ny_now.strftime('%H:%M')}\n"
     )
 
@@ -73,7 +74,7 @@ def generate_report():
     sp500_p, sp500_c, sp500_pct = get_ticker_data("^GSPC")
 
     section_indices = (
-        f"\n📊 지수/환율\n"
+        f"\n📊 *지수/환율*\n"
         f"원/달러: {format_value(usdkrw_p, usdkrw_c, usdkrw_pct)}\n"
         f"국내선물: 데이터 대기 중\n"
         f"나스닥: {format_value(nasdaq_p, nasdaq_c, nasdaq_pct)}\n"
@@ -87,20 +88,20 @@ def generate_report():
     us30y_p, us30y_c, us30y_pct = get_ticker_data("^TYX")
 
     section_bonds = (
-        f"\n🏛️ 미 국채 수익률 (%)\n"
+        f"\n🏛️ *미 국채 수익률 (%)*\n"
         f"1년물: {format_value(us01y_p, us01y_c, us01y_pct, is_yield=True)}\n"
         f"5년물: {format_value(us05y_p, us05y_c, us05y_pct, is_yield=True)}\n"
         f"10년물: {format_value(us10y_p, us10y_c, us10y_pct, is_yield=True)}\n"
         f"30년물: {format_value(us30y_p, us30y_c, us30y_pct, is_yield=True)}\n"
     )
 
-    # 암호화폐 (비트코인, 이더리움, 테더 추가)
+    # 암호화폐 (비트코인, 이더리움, 테더)
     btc_p, btc_c, btc_pct = get_ticker_data("BTC-USD")
     eth_p, eth_c, eth_pct = get_ticker_data("ETH-USD")
     usdt_p, usdt_c, usdt_pct = get_ticker_data("USDT-USD")
 
     section_crypto = (
-        f"\n🌕 암호화폐\n"
+        f"\n🌕 *암호화폐*\n"
         f"비트코인: {format_value(btc_p, btc_c, btc_pct)}\n"
         f"이더리움: {format_value(eth_p, eth_c, eth_pct)}\n"
         f"테더: {format_value(usdt_p, usdt_c, usdt_pct)}\n"
@@ -115,7 +116,7 @@ def generate_report():
     pall_p, pall_c, pall_pct = get_ticker_data("PA=F")
 
     section_commodities = (
-        f"\n🛢️ 에너지/금속\n"
+        f"\n🛢️ *에너지/금속*\n"
         f"WTI유: {format_value(wti_p, wti_c, wti_pct)}\n"
         f"국제금: {format_value(gold_p, gold_c, gold_pct)}\n"
         f"실버: {format_value(silver_p, silver_c, silver_pct)}\n"
@@ -135,7 +136,7 @@ def generate_report():
 
 
 # ---------------------------------------------------------
-# 4. 텔레그램 전송 함수
+# 4. 텔레그램 전송 함수 (Markdown 적용)
 # ---------------------------------------------------------
 def send_telegram_message(text):
     if not BOT_TOKEN or not CHAT_ID:
@@ -143,7 +144,7 @@ def send_telegram_message(text):
         return
 
     url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
-    payload = {"chat_id": CHAT_ID, "text": text}
+    payload = {"chat_id": CHAT_ID, "text": text, "parse_mode": "Markdown"}
     response = requests.post(url, json=payload)
     print("Telegram Response:", response.json())
 
